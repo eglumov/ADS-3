@@ -3,72 +3,40 @@
 #include "alg.h"
 
 uint64_t collatzMaxValue(uint64_t num) {
-    if (num <= 1) {
-        return num;
-    }
-
-    uint64_t max_val = num;
-
-    while (num != 1) {
-        if (num % 2 == 0) {
-            num /= 2;
-        } else {
-            num = 3 * num + 1;
-        }
-
-        if (num > max_val) {
-            max_val = num;
+    if (num == 0) return 0;
+    
+    uint64_t peak = num;
+    for (; num > 1; ) {
+        num = (num & 1) ? (num * 3 + 1) : (num >> 1);
+        if (num > peak) {
+            peak = num;
         }
     }
-
-    return max_val;
+    return peak;
 }
 
 unsigned int collatzLen(uint64_t num) {
-    if (num <= 1) {
-        return 0;
+    if (num == 0) return 0;
+    
+    unsigned int length = 1;
+    for (; num > 1; ++length) {
+        num = (num & 1) ? (num * 3 + 1) : (num >> 1);
     }
-
-    unsigned int count = 1;
-
-    while (num != 1) {
-        if (num % 2 == 0) {
-            num /= 2;
-        } else {
-            num = 3 * num + 1;
-        }
-        count++;
-    }
-
-    return count;
+    return length;
 }
 
-unsigned int seqCollatz(unsigned int *maxlen,
-                        uint64_t lbound,
-                        uint64_t rbound) {
-    uint64_t best_num = 0;
-    unsigned int best_len = 0;
+unsigned int seqCollatz(unsigned int *maxlen, uint64_t lbound, uint64_t rbound) {
+    unsigned int max_seq_length = 0;
+    uint64_t optimal_start_num = 0;
 
-    for (uint64_t i = lbound; i <= rbound; i++) {
-        uint64_t n = i;
-        unsigned int current_len = 1;
-
-        while (n > 1) {
-            if (n % 2 == 0) {
-                n = n / 2;
-            } else {
-                n = 3 * n + 1;
-            }
-            current_len++;
+    for (uint64_t current = lbound; current <= rbound; ++current) {
+        unsigned int current_length = collatzLen(current);
+        if (current_length > max_seq_length) {
+            max_seq_length = current_length;
+            optimal_start_num = current;
         }
-
-        if (current_len > best_len) {
-            best_len = current_len;
-            best_num = i;
-        }
-        if (i == rbound) break;
     }
 
-    *maxlen = best_len;
-    return (unsigned int)best_num;
+    *maxlen = max_seq_length;
+    return static_cast<unsigned int>(optimal_start_num);
 }
